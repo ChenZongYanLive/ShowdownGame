@@ -10,6 +10,9 @@ public class Player
     public List<Card> Cards { get; set; }
     
     public int Point { get; set; }
+    public bool IsExchangePlayer { get; set; }
+    public string ExChangePlayerId { get; set; }
+    public int ExChangePlayerRound { get; set; }
 
     public Card PlayingCard(int cardIndex)
     {
