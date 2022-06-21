@@ -1,4 +1,6 @@
-﻿namespace ShowdownGame;
+﻿using System.Reflection.Metadata;
+
+namespace ShowdownGame;
 
 public class Game
 {
@@ -50,5 +52,31 @@ public class Game
                 }
             }
         }
+
+        var deck = new Deck();
+        
+        Console.WriteLine("遊戲開始!!");
+
+        for (var i = 0; i < players.Length; i++)
+        {
+            Console.WriteLine($"請{players[i]}玩家輸入名字：");
+            var name = Console.ReadLine();
+            Players[players[i]].Name = name;
+        }
+        
+        Console.WriteLine("進行洗牌......");
+        deck.Shuffle();
+        
+        Console.WriteLine("開始進行抽牌");
+        while (deck.Cards.Count > 0)
+        {
+            for (var i = 0; i < players.Length; i++)
+            {
+                Players[players[i]].Cards.Add(deck.DrawCard());
+            }
+        }
+        
+        Console.WriteLine("開始進行比大小");
+        
     }
 }
