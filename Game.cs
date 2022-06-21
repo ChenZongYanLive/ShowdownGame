@@ -1,4 +1,5 @@
-﻿using System.Reflection.Metadata;
+﻿using System.Linq;
+using System.Reflection.Metadata;
 
 namespace ShowdownGame;
 
@@ -59,7 +60,7 @@ public class Game
 
         for (var i = 0; i < players.Length; i++)
         {
-            Console.WriteLine($"請{players[i]}玩家輸入名字：");
+            Console.WriteLine($"請{players[i]}玩家輸入名字：");//TODO Ai玩家 > 隨機選擇
             var name = Console.ReadLine();
             Players[players[i]].Name = name;
         }
@@ -77,6 +78,81 @@ public class Game
         }
         
         Console.WriteLine("開始進行比大小");
+        var maxRound = 1;
+        for (var i = 1; i <= maxRound; i++)
+        {
+            Console.WriteLine($"第{i}回合");
+            var playsOfShowCard = new Dictionary<string, Card>();
+            for (var j = 0; j < players.Length; j++)
+            {
+                var player = Players[players[j]];
+                Console.WriteLine($"{players[j]}玩家請選擇是否要交換手牌");//TODO Ai玩家 > 隨機選擇
+                Console.WriteLine("若要交換手牌請輸入[Y]");
+                Console.WriteLine("沒有要交換則輸入[N]");
+                var isExchangeHands = Console.ReadLine();
+                if (isExchangeHands != null && isExchangeHands.ToUpper().Equals("Y"))
+                {
+                    Console.WriteLine($"你可以跟這些玩家交換手牌：{string.Join(',',players.Where(x=>x != players[j]).ToArray())}");
+                    Console.WriteLine("請選擇你要跟哪位玩家交換");
+                    var exchangePlayer = Console.ReadLine();//TODO Ai玩家 > 隨機選擇
+                    
+                    Console.WriteLine("交換完畢");
+                }
+                
+                Console.WriteLine($"請輸入號碼選擇你要出的牌，手牌:");
+                for (var k = 0; k < player.Cards.Count; k++)
+                {
+                    var card = player.Cards[k];
+                    Console.WriteLine($"號碼{k}.[花色{card.Suit}/階級{card.Rank.Key}]");
+                }
+                var cardIndex = Convert.ToInt32(Console.ReadLine());//TODO Ai玩家 > 隨機選擇
+                var playingCard = player.PlayingCard(cardIndex);
+                playsOfShowCard.Add(players[j], playingCard);
+            }
+
+            KeyValuePair<string, Card> winner = default;
+            foreach (var item in playsOfShowCard)
+            {
+                if (winner.Equals(default(KeyValuePair<string, Card>)))
+                {
+                    winner = new KeyValuePair<string, Card>(item.Key, item.Value);
+
+                }
+                else
+                {
+                    if (item.Value.Rank.Value > winner.Value.Rank.Value)
+                    {
+                        winner = new KeyValuePair<string, Card>(item.Key, item.Value);
+                    }
+                    else if (item.Value.Rank.Value == winner.Value.Rank.Value)
+                    {
+                        if (item.Value.Suit > winner.Value.Suit)
+                        {
+                            winner = new KeyValuePair<string, Card>(item.Key, item.Value);
+                        }
+                    }
+                }
+            }
+            Console.WriteLine($"這回合最勝者為{winner.Key}玩家");
+            Players[winner.Key].GainPoint();
+        }
+
+        KeyValuePair<string, Player> finalWinner = default;
+        foreach (var item in Players)
+        {
+            if (finalWinner.Equals(default(KeyValuePair<string, Player>)))
+            {
+                finalWinner = new KeyValuePair<string, Player>(item.Key, item.Value);
+            }
+            else
+            {
+                if (item.Value.Point > finalWinner.Value.Point)
+                {
+                    finalWinner = new KeyValuePair<string, Player>(item.Key, item.Value);
+                }
+            }
+        }
         
+        Console.WriteLine($"最勝者玩家為:{finalWinner.Key}.{finalWinner.Value.Name}");
     }
 }
